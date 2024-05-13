@@ -141,67 +141,83 @@ def main():
 
         else:
             #this is a buy
-
             currObj = buyOrderNode(time_string_to_int(order['Time']), order['OrderID'], order['Instrument'], order['Quantity'], order['Client'], order['Price'], order['Side'], order['PositionCheck'], order['Rating'])
-            
             #no need to check balance 
-            if order['Price'] == "Market":
-                heapq.heappush(instrument_dict[order['Instrument']]['sell_market_heap'],currObj)
+
+            #buyorder workflow
+            #split into 2 branches
+            if currObj.price == "Market":
+                #this is a market buy order
+                while currObj.quantity >0:
+                    #there are no limit selllorders
+                    if len(sell_heap) == 0:
+                        break
+                    #there is a valid sell order                        
+                    #no need to check if there is market
+                    #Pop highest limit order and satisfy it
+                    if True:
+                        sell_node = heapq.heappop(sell_heap)
+                        quantity_executed = min(currObj.quantity, sell_node.quantity)
+                        currObj.quantity -= quantity_executed
+                        sell_node.quantity -= quantity_executed
+                        if sell_node.quantity != 0:
+                            #sell node got leftover
+                            heapq.heappush(sell_heap, sell_node)
+                        else:       
+                            #sell  node no more leftover
+                            pass
+
+                        #ORDER HAS EXECUTED
+                        continue
             else:
-                heapq.heappush(instrument_dict[order['Instrument']]['sell_heap'],currObj)
+                #this is a limit buy order
+                while currObj.quantity >0:
+                    #there are no sell orders
+                    if len(sell_heap) == 0 and len(sell_market_heap) == 0:
+                        break
+                    
+                    #there are no market, and the limit sell is greater than this buy order
+                    if len(sell_market_heap) == 0 and float(sell_heap[0]['Price']) > float(currObj['Price']):
+                        break
 
-            #sellorder workflow
-            
+                    #there is a valid sell order                        
+                    #check if there is market
+                    if len(sell_market_heap) != 0:
+                        #there is a market order. this takes priority
+                        sell_market_node = heapq.heappop(sell_market_heap)
+                        quantity_executed = min(currObj.quantity, sell_market_node.quantity)
+                        currObj.quantity -= quantity_executed
+                        sell_market_node.quantity -= quantity_executed
+                        if sell_market_node.quantity != 0:
+                            #buymarket node got leftover
+                            heapq.heappush(sell_market_heap, sell_market_node)
+                        else:       
+                            #buy market node no more leftover
+                            pass
 
-            
-            #there is either a market or a valid buy
-            while currObj.quantity >0:
-                #there are no buyorders
-                if len(buy_heap) == 0 and len(buy_market_heap) == 0:
-                    break
-                
-                #there are no market, and the buy is less than sell
-                if len(buy_market_heap) == 0 and float(buy_heap[0]['Price']) < float(currObj['Price']):
-                    break
+                        #ORDER HAS EXECUTED
+                        continue
+                    
+                    #no market orders to execute with. look at limit
+                    if float(sell_heap[0]['Price']) <= float(currObj['Price']):
+                        sell_node = heapq.heappop(sell_heap)
+                        quantity_executed = min(currObj.quantity, sell_node.quantity)
+                        currObj.quantity -= quantity_executed
+                        sell_node.quantity -= quantity_executed
+                        if sell_node.quantity != 0:
+                            #sell node got leftover
+                            heapq.heappush(sell_heap, sell_node)
+                        else:       
+                            #sell  node no more leftover
+                            pass
 
-                #there is a valid buy order                        
-                #check if there is market
-                if len(buy_market_heap) != 0:
-                    #there is a market order. this takes priority
-                    buy_market_node = heapq.heappop(buy_market_heap)
-                    quantity_executed = min(currObj.quantity, buy_market_node.quantity)
-                    currObj.quantity -= quantity_executed
-                    buy_market_node.quantity -= quantity_executed
-                    if buy_market_node.quantity != 0:
-                        #buymarket node got leftover
-                        heapq.heappush(buy_market_heap, buy_market_node)
-                    else:       
-                        #buy market node no more leftover
-                        pass
-
-                    #ORDER HAS EXECUTED
-                    continue
-                
-                #no market orders to execute with. look at limit
-                if float(buy_heap[0]['Price']) < float(currObj['Price']):
-                    buy_node = heapq.heappop(buy_heap)
-                    quantity_executed = min(currObj.quantity, buy_node.quantity)
-                    currObj.quantity -= quantity_executed
-                    buy_node.quantity -= quantity_executed
-                    if buy_node.quantity != 0:
-                        #buy node got leftover
-                        heapq.heappush(buy_heap, buy_node)
-                    else:       
-                        #buy  node no more leftover
-                        pass
-
-                    #ORDER HAS EXECUTED
-                    continue
+                        #ORDER HAS EXECUTED
+                        continue
             #broke out of while loop. nothing can satisfy this. add to heap
             if currObj.quantity != 0:
                 if order['Price'] == "Market":
-                    heapq.heappush(instrument_dict[order['Instrument']]['sell_market_heap'],currObj)
+                    heapq.heappush(instrument_dict[order['Instrument']]['buy_market_heap'],currObj)
                     
                 else:
-                    heapq.heappush(instrument_dict[order['Instrument']]['sell_heap'],currObj)
-
+                    heapq.heappush(instrument_dict[order['Instrument']]['buy_heap'],currObj)
+        
