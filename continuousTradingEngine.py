@@ -3,6 +3,7 @@ import csv
 from collections import defaultdict
 from buyOrderNode import buyOrderNode
 from sellOrderNode import sellOrderNode
+from auction import auction
 #read in from open auction
 #instrument dict maps instruments to the 4 heaps
 instrument_dict = {}
