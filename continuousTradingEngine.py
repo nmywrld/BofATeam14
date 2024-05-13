@@ -3,10 +3,10 @@ import csv
 from collections import defaultdict
 from buyOrderNode import buyOrderNode
 from sellOrderNode import sellOrderNode
-from auction import auction
+from auction import auction, auction2
 #read in from open auction
 #instrument dict maps instruments to the 4 heaps
-instrument_dict = {}
+
 
 #assume heaps have already been updated
 #TODO
@@ -33,10 +33,9 @@ def time_string_to_int(time_string):
     final_time += int(split_arr[2])
     return final_time
 
-def engine():
+def engine(client_dict, instrument_dict):
     order_data = csv_to_ArrayDict('./hong_testing/filtered_orders_continuoustrading.csv')
     #client dict is a default dict. read in from open auction? but prolly dn
-    client_dict = defaultdict(lambda: defaultdict(int))
     for order in order_data:
         if order['Time'] == "16:00:00":
             break
@@ -85,7 +84,7 @@ def engine():
                     #Pop highest limit order and satisfy it
                     if True:
                         buy_node = heapq.heappop(buy_heap)
-                        quantity_executed = min(currObj.quantity, buy_node.quantity)
+                        quantity_executed = min(float(currObj.quantity), float(buy_node.quantity))
                         currObj.quantity -= quantity_executed
                         buy_node.quantity -= quantity_executed
                         client_dict[currObj.client_id][currObj.instrument] -= quantity_executed
@@ -277,4 +276,8 @@ def engine():
 
     return (client_dict, instrument_dict)
 
-engine()
+a = auction()
+client_dict, instrument_dict = a[0], a[1]
+a =engine(client_dict, instrument_dict)
+client_dict, instrument_dict = a[0], a[1]
+auction2(client_dict, instrument_dict)
