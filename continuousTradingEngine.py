@@ -1,11 +1,17 @@
 import heapq
 import csv
+from collections import defaultdict
+from buyOrderNode import buyOrderNode
+from sellOrderNode import sellOrderNode
 #read in from open auction
+instrument_dict = {}
 buy_heap = []
 sell_heap = []
 buy_market_heap = []
 sell_market_heap = []
 
+#client dict is a default dict. read in from open auction? but prolly dn
+client_dict = defaultdict(lambda: defaultdict(int))
 
 #assume heaps have already been updated
 
@@ -32,29 +38,57 @@ def time_string_to_int(time_string):
     final_time += int(split_arr[2])
     return final_time
 
-for order in order_data:
-    if order['Side'] == "Sell":
-        currObj = orderNode(order['Time'], order['OrderID'], order['Instrument'], order['Quantity'], order['Client'], order['Price'], order['Side'], client_data[order['Client']]["Rating"], client_data[order['Client']]["PositionCheck"])
-        if order['Price'] == "Market":
-            sell_market_heap.append(currObj)
-        else:
-            sell_heap.append(currObj)
-    else:
-        currObj = orderNode(order['Time'], order['OrderID'], order['Instrument'], order['Quantity'], order['Client'], order['Price'], order['Side'], client_data[order['Client']]["Rating"], client_data[order['Client']]["PositionCheck"])
+def main():
+    for order in order_data:
         
-        if order['Price'] == "Market":
-            buy_market_heap.append(currObj)
+        if order['Instrument'] not in instrument_dict:
+            instrument_dict[order['Instrument']] = {'buy_heap' :[], 'sell_heap':[], 'sell_market_heap':[], 'buy_market_heap':[]}
+        buy_heap = instrument_dict[order['Instrument']]['buy_heap']
+        buy_market_heap = instrument_dict[order['Instrument']]['buy_market_heap']
+        sell_heap = instrument_dict[order['Instrument']]['sell_heap']
+        sell_market_heap = instrument_dict[order['Instrument']]['sell_market_heap']
+        if order['Side'] == "Sell":
+            #HAVE TO CHECK BALANCE!! TODO
+            currObj = sellOrderNode(time_string_to_int(order['Time']), order['OrderID'], order['Instrument'], order['Quantity'], order['Client'], order['Price'], order['Side'], order['PositionCheck'], order['Rating'])
+            if order['Price'] == "Market":
+                heapq.heappush(instrument_dict[order['Instrument']]['sell_market_heap'],currObj)
+            else:
+                heapq.heappush(instrument_dict[order['Instrument']]['sell_heap'],currObj)
+
+            #sellorder workflow
+            
+
+            #there are no buyorders
+            if len(buy_heap) == 0 and len(buy_market_heap) == 0:
+                if order['Price'] == "Market":
+                    heapq.heappush(instrument_dict[order['Instrument']]['sell_market_heap'],currObj)
+                else:
+                    heapq.heappush(instrument_dict[order['Instrument']]['sell_heap'],currObj)
+            
+            #there are no market, and the buy is less than sell
+            if len(buy_market_heap) == 0 and float(buy_heap[0]['Price']) < float(currObj['Price']):
+                if order['Price'] == "Market":
+                    heapq.heappush(instrument_dict[order['Instrument']]['sell_market_heap'],currObj)
+                else:
+                    heapq.heappush(instrument_dict[order['Instrument']]['sell_heap'],currObj)
+
+
+            #there is either a market or a valid buy
+            while currObj.quantity >0:
+                    
+                #check if there is market
+                if len(buy_market_heap) != 0:
+                    #there is a market order. this takes priority
+                    buy_market_node = heapq.heappop(buy_market_heap)
+                    
+
         else:
-            buy_heap.append(currObj)
+            currObj = buyOrderNode(time_string_to_int(order['Time']), order['OrderID'], order['Instrument'], order['Quantity'], order['Client'], order['Price'], order['Side'], order['PositionCheck'], order['Rating'])
+            
+            if order['Price'] == "Market":
+                heapq.heappush(instrument_dict[order['Instrument']]['buy_market_heap'],currObj)
+            else:
+                heapq.heappush(instrument_dict[order['Instrument']]['buy_heap'],currObj)
+            
+            #buyorder workflow
 
-
-    for row in reader_obj: 
-        time = row[0]
-        order_id = order_id
-        instrument = instrument
-        quantity = quantity
-        client_id = client_id
-        price = price
-        buy_or_sell = buy_or_sell
-        client_rating = client_rating
-        client_position_check = client_position_check
