@@ -55,4 +55,4 @@ class sellOrderNode:
             else:
                 #prices are different
                 #lower price has priority for sell
-                return float(self.price) < float(self.price)
+                return float(self.price) < float(otherNode.price)
