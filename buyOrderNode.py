@@ -19,6 +19,41 @@ class buyOrderNode:
         self.client_rating = client_rating
         self.client_position_check = client_position_check
 
-    def __lt__(self, other):
-        return self.val < other.val
+    def __lt__(self, otherNode):
+        #return true if self is smaller than otherNode (self should be popped first)
+        #if both of these are market
+        if self.price == "Market" and otherNode.price == "Market":
+            #check client rating
+            #if both ratings are the same
+            if self.client_rating == otherNode.client_rating:
+                #check order arrival time
+                return self.time < otherNode.time
+            else:
+                #both ratings are different
+                #client with higher rating has priority
+                return self.client_rating > otherNode.client_rating
+        else:
+            #maybe one of them is market
+            #if self is market
+            if self.price == "Market":
+                return True
+            elif otherNode.price == "Market":
+                return False 
+            
+            
+            #both of them arent market
+            if self.price == otherNode.price:
+                #price is the same
+                if self.client_rating == otherNode.client_rating:
+                    #rating is the same
+                    #check order arrival time
+                    return self.time < otherNode.time
+                else:
+                #both ratings are different
+                #client with higher rating has priority
+                    return self.client_rating > otherNode.client_rating
+            else:
+                #prices are different
+                #higher price has priority for buy
+                return float(self.price) > float(self.price)
         
