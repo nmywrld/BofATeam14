@@ -5,7 +5,7 @@ class sellOrderNode:
         #instrument = string
         #quantity = string
         #client_id = string
-        #price = float
+        #price = string. "Market" or decimal
         #buy_or_sell = string. "Buy" / "Sell"
         #client_rating = int
         #client_position_check = string "Y" / "N"
