@@ -3,6 +3,7 @@ import heapq
 from orderNode import orderNode
 from buyOrderNode import buyOrderNode
 from sellOrderNode import sellOrderNode
+from collections import defaultdict
 
 def csv_to_ArrayDict(filename):
     with open(filename, mode='r') as infile:
@@ -33,7 +34,7 @@ def auction():
 
     # loop through order_data and create orderNodes and put it inside a variable called orderBook
 
-    client_holdings = {}
+    client_holdings = defaultdict(lambda: defaultdict(int))
 
     instrument_dict= {}
 
@@ -415,6 +416,8 @@ def auction():
 
         print(client_holdings)
         print()
+
+        return {}
 
 
     
