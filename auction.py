@@ -417,8 +417,7 @@ def auction():
         print(client_holdings)
         print()
 
-        return {}
-
+        return (client_holdings, instrument_dict)
 
     
 
