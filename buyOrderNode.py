@@ -1,11 +1,11 @@
-class orderNode:
+class buyOrderNode:
     def __init__(self, time, order_id, instrument, quantity, client_id, price, buy_or_sell, client_rating, client_position_check):
         #time = int. * 60 and add or *60 * 60 and add
         #order_id = string
         #instrument = string
         #quantity = string
         #client_id = string
-        #price = float
+        #price = string. "Market" or decimal
         #buy_or_sell = string. "Buy" / "Sell"
         #client_rating = int
         #client_position_check = string "Y" / "N"
@@ -18,4 +18,7 @@ class orderNode:
         self.buy_or_sell = buy_or_sell
         self.client_rating = client_rating
         self.client_position_check = client_position_check
+
+    def __lt__(self, other):
+        return self.val < other.val
         
