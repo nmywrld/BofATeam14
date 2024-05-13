@@ -76,6 +76,8 @@ def main():
                         quantity_executed = min(currObj.quantity, buy_node.quantity)
                         currObj.quantity -= quantity_executed
                         buy_node.quantity -= quantity_executed
+                        client_dict[currObj.client] -= quantity_executed
+                        client_dict[buy_node.client] += quantity_executed
                         if buy_node.quantity != 0:
                             #buy node got leftover
                             heapq.heappush(buy_heap, buy_node)
@@ -104,6 +106,8 @@ def main():
                         quantity_executed = min(currObj.quantity, buy_market_node.quantity)
                         currObj.quantity -= quantity_executed
                         buy_market_node.quantity -= quantity_executed
+                        client_dict[currObj.client] -= quantity_executed
+                        client_dict[buy_market_node.client] += quantity_executed
                         if buy_market_node.quantity != 0:
                             #buymarket node got leftover
                             heapq.heappush(buy_market_heap, buy_market_node)
@@ -120,6 +124,8 @@ def main():
                         quantity_executed = min(currObj.quantity, buy_node.quantity)
                         currObj.quantity -= quantity_executed
                         buy_node.quantity -= quantity_executed
+                        client_dict[currObj.client] -= quantity_executed
+                        client_dict[buy_node.client] += quantity_executed
                         if buy_node.quantity != 0:
                             #buy node got leftover
                             heapq.heappush(buy_heap, buy_node)
@@ -160,6 +166,8 @@ def main():
                         quantity_executed = min(currObj.quantity, sell_node.quantity)
                         currObj.quantity -= quantity_executed
                         sell_node.quantity -= quantity_executed
+                        client_dict[currObj.client] += quantity_executed
+                        client_dict[sell_node.client] -= quantity_executed
                         if sell_node.quantity != 0:
                             #sell node got leftover
                             heapq.heappush(sell_heap, sell_node)
@@ -188,6 +196,8 @@ def main():
                         quantity_executed = min(currObj.quantity, sell_market_node.quantity)
                         currObj.quantity -= quantity_executed
                         sell_market_node.quantity -= quantity_executed
+                        client_dict[currObj.client] += quantity_executed
+                        client_dict[sell_market_node.client] -= quantity_executed
                         if sell_market_node.quantity != 0:
                             #buymarket node got leftover
                             heapq.heappush(sell_market_heap, sell_market_node)
@@ -204,6 +214,8 @@ def main():
                         quantity_executed = min(currObj.quantity, sell_node.quantity)
                         currObj.quantity -= quantity_executed
                         sell_node.quantity -= quantity_executed
+                        client_dict[currObj.client] += quantity_executed
+                        client_dict[sell_node.client] -= quantity_executed
                         if sell_node.quantity != 0:
                             #sell node got leftover
                             heapq.heappush(sell_heap, sell_node)
