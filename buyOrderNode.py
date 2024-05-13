@@ -1,4 +1,4 @@
-class orderNode:
+class buyOrderNode:
     def __init__(self, time, order_id, instrument, quantity, client_id, price, buy_or_sell, client_rating, client_position_check):
         #time = int. * 60 and add or *60 * 60 and add
         #order_id = string
